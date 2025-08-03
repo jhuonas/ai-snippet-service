@@ -1,12 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SnippetService } from './snippet.service';
 import { PrismaService } from '../database/prisma/prisma.service';
-
-class AiService {
-  summarize(text: string): Promise<string> {
-    return Promise.resolve('stub');
-  }
-}
+import { AiService } from '../ai/ai.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('SnippetService', () => {
   let service: SnippetService;
@@ -26,6 +22,18 @@ describe('SnippetService', () => {
                 createdAt: new Date(),
               })),
             },
+          },
+        },
+        {
+          provide: AiService,
+          useValue: {
+            summarize: jest.fn().mockResolvedValue('Mocked summary from AI'),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('mock-api-key'),
           },
         },
       ],
@@ -64,6 +72,12 @@ describe('SnippetService', () => {
         SnippetService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: AiService, useValue: mockAiService },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('mock-api-key'),
+          },
+        },
       ],
     }).compile();
 
