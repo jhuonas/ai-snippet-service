@@ -1,24 +1,19 @@
 import { Injectable } from '@nestjs/common';
-
-export interface CreateSnippetDto {
-  text: string;
-}
-
-export interface Snippet {
-  id: string;
-  text: string;
-  summary: string;
-  createdAt: Date;
-}
+import { PrismaService } from '../database/prisma/prisma.service';
+import type { Snippet } from '@prisma/client';
 
 @Injectable()
 export class SnippetService {
-  async create(dto: CreateSnippetDto): Promise<Snippet> {
-    return {
-      id: '1',
-      text: dto.text,
-      summary: 'This is an example summary.',
-      createdAt: new Date(),
-    };
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(data: { text: string }): Promise<Snippet> {
+    const summary = 'Hardcoded summary';
+
+    return this.prisma.snippet.create({
+      data: {
+        text: data.text,
+        summary,
+      },
+    });
   }
 }
