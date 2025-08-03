@@ -10,6 +10,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model Snippet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  summary   String
+  createdAt DateTime @default(now())
 }
