@@ -1,13 +1,6 @@
 import { Test } from '@nestjs/testing';
+import { SnippetController } from './snippet.controller';
 import { SnippetService } from './snippet.service';
-
-class SnippetController {
-  constructor(private readonly snippetService: SnippetService) {}
-
-  async create(data: { text: string }) {
-    return this.snippetService.create(data);
-  }
-}
 
 describe('SnippetController', () => {
   let controller: SnippetController;
@@ -23,8 +16,18 @@ describe('SnippetController', () => {
       }),
     };
 
-    controller = new SnippetController(mockSnippetService as any);
-    snippetService = mockSnippetService;
+    const module = await Test.createTestingModule({
+      controllers: [SnippetController],
+      providers: [
+        {
+          provide: SnippetService,
+          useValue: mockSnippetService,
+        },
+      ],
+    }).compile();
+
+    controller = module.get<SnippetController>(SnippetController);
+    snippetService = module.get<SnippetService>(SnippetService);
   });
 
   it('should create a snippet via POST', async () => {

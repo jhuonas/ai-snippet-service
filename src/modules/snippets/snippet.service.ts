@@ -13,11 +13,13 @@ export class SnippetService {
   async create(data: { text: string }): Promise<Snippet> {
     const summary = await this.aiService.summarize(data.text);
 
-    return this.prisma.snippet.create({
+    const snippet = await this.prisma.snippet.create({
       data: {
         text: data.text,
         summary,
       },
     });
+
+    return snippet;
   }
 }
