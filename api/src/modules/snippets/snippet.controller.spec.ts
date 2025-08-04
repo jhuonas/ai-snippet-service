@@ -16,6 +16,25 @@ describe('SnippetController', () => {
         summary: 'Short summary',
         createdAt: new Date(),
       }),
+      findAll: jest.fn().mockResolvedValue({
+        data: [
+          {
+            id: '1',
+            text: 'Snippet 1',
+            summary: 'Summary 1',
+            createdAt: new Date(),
+          },
+          {
+            id: '2',
+            text: 'Snippet 2',
+            summary: 'Summary 2',
+            createdAt: new Date(),
+          },
+        ],
+        total: 2,
+        take: 10,
+        skip: 0,
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -49,6 +68,132 @@ describe('SnippetController', () => {
 
       expect(result).toHaveProperty('id');
       expect(snippetService.create).toHaveBeenCalledWith(createSnippetDto);
+    });
+  });
+
+  describe('GET /snippets', () => {
+    it('should return first 10 snippets when no pagination params are provided', async () => {
+      const result = await controller.findAll({});
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('total');
+      expect(result).toHaveProperty('take');
+      expect(result).toHaveProperty('skip');
+      expect(result.data).toHaveLength(2);
+      expect(result.take).toBe(10);
+      expect(result.skip).toBe(0);
+      expect(snippetService.findAll).toHaveBeenCalledWith({
+        take: 10,
+        skip: 0,
+      });
+    });
+
+    it('should return exactly 5 records starting from the 3rd when take=5 and skip=2', async () => {
+      const mockServiceResponse = {
+        data: [
+          {
+            id: '3',
+            text: 'Snippet 3',
+            summary: 'Summary 3',
+            createdAt: new Date(),
+          },
+          {
+            id: '4',
+            text: 'Snippet 4',
+            summary: 'Summary 4',
+            createdAt: new Date(),
+          },
+          {
+            id: '5',
+            text: 'Snippet 5',
+            summary: 'Summary 5',
+            createdAt: new Date(),
+          },
+          {
+            id: '6',
+            text: 'Snippet 6',
+            summary: 'Summary 6',
+            createdAt: new Date(),
+          },
+          {
+            id: '7',
+            text: 'Snippet 7',
+            summary: 'Summary 7',
+            createdAt: new Date(),
+          },
+        ],
+        total: 10,
+        take: 5,
+        skip: 2,
+      };
+
+      snippetService.findAll.mockResolvedValue(mockServiceResponse);
+
+      const result = await controller.findAll({ take: 5, skip: 2 });
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('total');
+      expect(result).toHaveProperty('take');
+      expect(result).toHaveProperty('skip');
+      expect(result.data).toHaveLength(5);
+      expect(result.take).toBe(5);
+      expect(result.skip).toBe(2);
+      expect(result.total).toBe(10);
+      expect(snippetService.findAll).toHaveBeenCalledWith({
+        take: 5,
+        skip: 2,
+      });
+    });
+
+    it('should return empty array when no snippets exist', async () => {
+      const mockServiceResponse = {
+        data: [],
+        total: 0,
+        take: 10,
+        skip: 0,
+      };
+
+      snippetService.findAll.mockResolvedValue(mockServiceResponse);
+
+      const result = await controller.findAll({});
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('total');
+      expect(result.data).toHaveLength(0);
+      expect(result.total).toBe(0);
+      expect(snippetService.findAll).toHaveBeenCalledWith({
+        take: 10,
+        skip: 0,
+      });
+    });
+
+    it('should handle pagination when total is less than take', async () => {
+      const mockServiceResponse = {
+        data: [
+          {
+            id: '1',
+            text: 'Snippet 1',
+            summary: 'Summary 1',
+            createdAt: new Date(),
+          },
+        ],
+        total: 1,
+        take: 10,
+        skip: 0,
+      };
+
+      snippetService.findAll.mockResolvedValue(mockServiceResponse);
+
+      const result = await controller.findAll({});
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('total');
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
+      expect(snippetService.findAll).toHaveBeenCalledWith({
+        take: 10,
+        skip: 0,
+      });
     });
   });
 
