@@ -35,6 +35,12 @@ describe('SnippetController', () => {
         take: 10,
         skip: 0,
       }),
+      findById: jest.fn().mockResolvedValue({
+        id: 'abc123',
+        text: 'Example text',
+        summary: 'Short summary',
+        createdAt: new Date(),
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -124,7 +130,9 @@ describe('SnippetController', () => {
         skip: 2,
       };
 
-      snippetService.findAll.mockResolvedValue(mockServiceResponse);
+      (snippetService.findAll as jest.Mock).mockResolvedValue(
+        mockServiceResponse,
+      );
 
       const result = await controller.findAll({ take: 5, skip: 2 });
 
@@ -150,7 +158,9 @@ describe('SnippetController', () => {
         skip: 0,
       };
 
-      snippetService.findAll.mockResolvedValue(mockServiceResponse);
+      (snippetService.findAll as jest.Mock).mockResolvedValue(
+        mockServiceResponse,
+      );
 
       const result = await controller.findAll({});
 
@@ -176,7 +186,9 @@ describe('SnippetController', () => {
         skip: 0,
       };
 
-      snippetService.findAll.mockResolvedValue(mockServiceResponse);
+      (snippetService.findAll as jest.Mock).mockResolvedValue(
+        mockServiceResponse,
+      );
 
       const result = await controller.findAll({});
 
@@ -256,6 +268,17 @@ describe('SnippetController', () => {
           metatype: CreateSnippetDto,
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('GET /snippets/:id', () => {
+    it('should return a snippet by ID', async () => {
+      const result = await controller.findById('abc123');
+
+      expect(snippetService.findById).toHaveBeenCalledWith('abc123');
+      expect(result).toHaveProperty('id', 'abc123');
+      expect(result).toHaveProperty('text', 'Example text');
+      expect(result).toHaveProperty('summary', 'Short summary');
     });
   });
 });

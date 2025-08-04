@@ -71,10 +71,10 @@ describe('PaginationQueryDto', () => {
     it('should transform valid query parameters', async () => {
       const rawData = { take: '10', skip: '0' };
 
-      const result = await validationPipe.transform(rawData, {
+      const result = (await validationPipe.transform(rawData, {
         type: 'query',
         metatype: PaginationQueryDto,
-      });
+      })) as PaginationQueryDto;
 
       expect(result).toBeInstanceOf(PaginationQueryDto);
       expect(result.take).toBe(10);
@@ -84,10 +84,10 @@ describe('PaginationQueryDto', () => {
     it('should transform string numbers to actual numbers', async () => {
       const rawData = { take: '5', skip: '2' };
 
-      const result = await validationPipe.transform(rawData, {
+      const result = (await validationPipe.transform(rawData, {
         type: 'query',
         metatype: PaginationQueryDto,
-      });
+      })) as PaginationQueryDto;
 
       expect(result).toBeInstanceOf(PaginationQueryDto);
       expect(result.take).toBe(5);
@@ -97,10 +97,10 @@ describe('PaginationQueryDto', () => {
     it('should use default values when parameters are not provided', async () => {
       const rawData = {};
 
-      const result = await validationPipe.transform(rawData, {
+      const result = (await validationPipe.transform(rawData, {
         type: 'query',
         metatype: PaginationQueryDto,
-      });
+      })) as PaginationQueryDto;
 
       expect(result).toBeInstanceOf(PaginationQueryDto);
       expect(result.take).toBeUndefined();
@@ -191,10 +191,10 @@ describe('PaginationQueryDto', () => {
     it('should handle edge case with take=1', async () => {
       const rawData = { take: '1', skip: '0' };
 
-      const result = await validationPipe.transform(rawData, {
+      const result = (await validationPipe.transform(rawData, {
         type: 'query',
         metatype: PaginationQueryDto,
-      });
+      })) as PaginationQueryDto;
 
       expect(result).toBeInstanceOf(PaginationQueryDto);
       expect(result.take).toBe(1);
@@ -204,10 +204,10 @@ describe('PaginationQueryDto', () => {
     it('should handle edge case with take=50 and skip=0', async () => {
       const rawData = { take: '50', skip: '0' };
 
-      const result = await validationPipe.transform(rawData, {
+      const result = (await validationPipe.transform(rawData, {
         type: 'query',
         metatype: PaginationQueryDto,
-      });
+      })) as PaginationQueryDto;
 
       expect(result).toBeInstanceOf(PaginationQueryDto);
       expect(result.take).toBe(50);
