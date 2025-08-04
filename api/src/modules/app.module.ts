@@ -6,7 +6,7 @@ import { PrismaService } from './database/prisma/prisma.service';
 import { AiService } from './ai/ai.service';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
+  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' })],
   controllers: [SnippetController],
   providers: [SnippetService, PrismaService, AiService],
   exports: [PrismaService],

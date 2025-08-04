@@ -22,4 +22,29 @@ export class SnippetService {
 
     return snippet;
   }
+
+  async findAll(params: { take?: number; skip?: number } = {}): Promise<{
+    data: Snippet[];
+    total: number;
+    take: number;
+    skip: number;
+  }> {
+    const { take = 10, skip = 0 } = params;
+
+    const [data, total] = await Promise.all([
+      this.prisma.snippet.findMany({
+        take,
+        skip,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.snippet.count(),
+    ]);
+
+    return {
+      data,
+      total,
+      take,
+      skip,
+    };
+  }
 }

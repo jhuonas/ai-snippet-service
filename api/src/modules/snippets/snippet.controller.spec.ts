@@ -6,7 +6,7 @@ import { CreateSnippetDto } from './dto/create-snippet.dto';
 
 describe('SnippetController', () => {
   let controller: SnippetController;
-  let snippetService: any;
+  let snippetService: SnippetService;
 
   beforeEach(async () => {
     const mockSnippetService = {
@@ -82,10 +82,7 @@ describe('SnippetController', () => {
       expect(result.data).toHaveLength(2);
       expect(result.take).toBe(10);
       expect(result.skip).toBe(0);
-      expect(snippetService.findAll).toHaveBeenCalledWith({
-        take: 10,
-        skip: 0,
-      });
+      expect(snippetService.findAll).toHaveBeenCalledWith({});
     });
 
     it('should return exactly 5 records starting from the 3rd when take=5 and skip=2', async () => {
@@ -161,10 +158,7 @@ describe('SnippetController', () => {
       expect(result).toHaveProperty('total');
       expect(result.data).toHaveLength(0);
       expect(result.total).toBe(0);
-      expect(snippetService.findAll).toHaveBeenCalledWith({
-        take: 10,
-        skip: 0,
-      });
+      expect(snippetService.findAll).toHaveBeenCalledWith({});
     });
 
     it('should handle pagination when total is less than take', async () => {
@@ -190,10 +184,7 @@ describe('SnippetController', () => {
       expect(result).toHaveProperty('total');
       expect(result.data).toHaveLength(1);
       expect(result.total).toBe(1);
-      expect(snippetService.findAll).toHaveBeenCalledWith({
-        take: 10,
-        skip: 0,
-      });
+      expect(snippetService.findAll).toHaveBeenCalledWith({});
     });
   });
 
@@ -212,10 +203,10 @@ describe('SnippetController', () => {
       const dto = new CreateSnippetDto();
       dto.text = 'Valid text';
 
-      const result = await validationPipe.transform(dto, {
+      const result = (await validationPipe.transform(dto, {
         type: 'body',
         metatype: CreateSnippetDto,
-      });
+      })) as CreateSnippetDto;
 
       expect(result).toBeInstanceOf(CreateSnippetDto);
       expect(result.text).toBe('Valid text');
