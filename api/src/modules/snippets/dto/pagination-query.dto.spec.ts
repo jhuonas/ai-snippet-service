@@ -1,10 +1,6 @@
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { validate } from 'class-validator';
-
-class PaginationQueryDto {
-  take?: number;
-  skip?: number;
-}
+import { PaginationQueryDto } from './pagination-query.dto';
 
 describe('PaginationQueryDto', () => {
   let validationPipe: ValidationPipe;
