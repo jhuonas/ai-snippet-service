@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { ChevronLeft, ChevronRight, Sparkles, FileText, Eye, Copy, Check } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import Header from "@/components/Header"
 
 // Mock data for demonstration
 const mockSnippets = Array.from({ length: 25 }, (_, i) => ({
@@ -67,17 +68,7 @@ export default function AISnippetService() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Sparkles className="h-6 w-6 text-blue-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">AI Snippet Service</h1>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Form Section */}
