@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   api:
     build:
@@ -5,21 +7,34 @@ services:
     container_name: api
     restart: unless-stopped
     ports:
-      - "3000:3000"
-      - "5555:5555"
+      - '3000:3000'
+      - '5555:5555'
     env_file:
       - .env.docker
     depends_on:
       - mongodb
 
+  web:
+    build:
+      context: ./web
+    container_name: web
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=3001
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - api
+
   mongodb:
     image: mongo:6.0
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
-    command: ["--replSet", "rs0"]
+    command: ['--replSet', 'rs0']
 
 volumes:
   mongo-data:
