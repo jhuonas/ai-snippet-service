@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight, Sparkles, FileText, Eye, Copy, Check } from 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import Header from "@/components/Header"
+import SnippetForm from "@/components/SnippetForm"
 
 // Mock data for demonstration
 const mockSnippets = Array.from({ length: 25 }, (_, i) => ({
@@ -71,43 +72,10 @@ export default function AISnippetService() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Form Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Generate Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="input-text">Enter your text to summarize</Label>
-                <Textarea
-                  id="input-text"
-                  placeholder="Paste your text here and we'll generate an AI-powered summary..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  className="min-h-[120px] mt-2"
-                  disabled={isGenerating}
-                />
-              </div>
-              <Button type="submit" disabled={!inputText.trim() || isGenerating} className="w-full sm:w-auto">
-                {isGenerating ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    Generating Summary...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Summary
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <SnippetForm onSuccess={() => {
+          // Update the snippets list in the future
+          window.location.reload()
+        }} />
 
         {/* Snippets List */}
         <div className="mb-8">
