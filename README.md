@@ -24,20 +24,61 @@ Frontend
 
 ## 🚀 Getting Started
 
-Prerequisites
+### Prerequisites
 
-- Docker
-- Docker Compose
-- Node.js (if running locally)
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Node.js](https://nodejs.org/) (if running locally)
 
-1. Clone the project
+### 1. Clone the project
 
 ```bash
 git clone https://github.com/jhuonas/ai-snippet-service.git
 cd ai-snippet-service
 ```
 
-2. Start with Docker Compose
+### 2. Set environment variables
+
+Create the following .env files based on the examples:
+
+For Docker Compose (root):
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+```bash
+DATABASE_URL="mongodb://mongodb:27017/snippets"
+ANTHROPIC_API_KEY=your_key_here
+ANTHROPIC_MODEL=claude-3-opus-20240229
+ANTHROPIC_API_VERSION=2023-06-01
+```
+
+For API (inside /api folder):
+
+```bash
+cp api/.env.example api/.env
+```
+
+Default content:
+
+```bash
+PORT=3000
+```
+
+For Web (inside /web folder):
+
+```bash
+cp web/.env.local.example web/.env.local
+```
+
+Default content:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
+### 3. Start with Docker Compose
 
 ```bash
 docker-compose up --build
