@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Param } from '@nestjs/common';
 import { SnippetService } from './snippet.service';
 import { CreateSnippetDto } from './dto/create-snippet.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
@@ -21,5 +21,10 @@ export class SnippetController {
     skip: number;
   }> {
     return this.snippetService.findAll(paginationQuery);
+  }
+
+  @Get(':id')
+  async findById(@Param('id') id: string): Promise<Snippet> {
+    return this.snippetService.findById(id);
   }
 }

@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma/prisma.service';
 import type { Snippet } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class SnippetService {
@@ -46,5 +51,21 @@ export class SnippetService {
       take,
       skip,
     };
+  }
+
+  async findById(id: string): Promise<Snippet> {
+    if (!ObjectId.isValid(id)) {
+      throw new BadRequestException(`Invalid ID format: ${id}`);
+    }
+
+    const snippet = await this.prisma.snippet.findUnique({
+      where: { id },
+    });
+
+    if (!snippet) {
+      throw new NotFoundException(`Snippet with ID "${id}" not found.`);
+    }
+
+    return snippet;
   }
 }
