@@ -1,0 +1,346 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { ChevronLeft, ChevronRight, Sparkles, FileText, Eye, Copy, Check } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+
+// Mock data for demonstration
+const mockSnippets = Array.from({ length: 25 }, (_, i) => ({
+  id: i + 1,
+  originalText: `This is sample original text for snippet ${i + 1}. It contains some longer content that would typically be summarized by an AI service. The text might include various details, explanations, or descriptions that need to be condensed into a more digestible format.`,
+  summary: `AI-generated summary for snippet ${i + 1}: Key points extracted and condensed into a brief, informative overview.`,
+  createdAt: new Date(Date.now() - Math.random() * 10000000000).toLocaleDateString(),
+}))
+
+const ITEMS_PER_PAGE = 6
+
+export default function AISnippetService() {
+  const [inputText, setInputText] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [selectedSnippet, setSelectedSnippet] = useState<(typeof mockSnippets)[0] | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [copiedText, setCopiedText] = useState<string | null>(null)
+
+  const totalPages = Math.ceil(mockSnippets.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const currentSnippets = mockSnippets.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inputText.trim()) return
+
+    setIsGenerating(true)
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setIsGenerating(false)
+    setInputText("")
+    // In real app, this would add the new snippet to the list
+  }
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  const copyToClipboard = async (text: string, type: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedText(type)
+      setTimeout(() => setCopiedText(null), 2000)
+    } catch (err) {
+      console.error("Failed to copy text: ", err)
+    }
+  }
+
+  const openModal = (snippet: (typeof mockSnippets)[0]) => {
+    setSelectedSnippet(snippet)
+    setIsModalOpen(true)
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Sparkles className="h-6 w-6 text-blue-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">AI Snippet Service</h1>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Form Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Generate Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="input-text">Enter your text to summarize</Label>
+                <Textarea
+                  id="input-text"
+                  placeholder="Paste your text here and we'll generate an AI-powered summary..."
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="min-h-[120px] mt-2"
+                  disabled={isGenerating}
+                />
+              </div>
+              <Button type="submit" disabled={!inputText.trim() || isGenerating} className="w-full sm:w-auto">
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Generating Summary...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Summary
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Snippets List */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Your Snippets</h2>
+
+          {/* Grid Layout - Responsive */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentSnippets.map((snippet) => (
+              <Card key={snippet.id} className="h-full flex flex-col hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-gray-600">Snippet #{snippet.id}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {snippet.createdAt}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Original Text</h4>
+                    <p className="text-sm text-gray-600 line-clamp-3 bg-gray-50 p-3 rounded-md">
+                      {snippet.originalText}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">AI Summary</h4>
+                    <p className="text-sm text-blue-700 bg-blue-50 p-3 rounded-md line-clamp-2">{snippet.summary}</p>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" onClick={() => openModal(snippet)} className="w-full">
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Empty State */}
+          {currentSnippets.length === 0 && (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No snippets yet</h3>
+              <p className="text-gray-600">Create your first snippet by entering text above.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t pt-6">
+            <div className="flex items-center text-sm text-gray-700">
+              Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, mockSnippets.length)} of{" "}
+              {mockSnippets.length} snippets
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there's a gap
+                    const showEllipsis = index > 0 && page - array[index - 1] > 1
+
+                    return (
+                      <div key={page} className="flex items-center">
+                        {showEllipsis && <span className="px-2 text-gray-400">...</span>}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => goToPage(page)}
+                          className="min-w-[40px]"
+                        >
+                          {page}
+                        </Button>
+                      </div>
+                    )
+                  })}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Snippet Details Modal */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Snippet #{selectedSnippet?.id} Details
+              </DialogTitle>
+            </DialogHeader>
+
+            {selectedSnippet && (
+              <div className="space-y-6">
+                {/* Metadata */}
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Created:</span>
+                    <Badge variant="outline">{selectedSnippet.createdAt}</Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Characters:</span>
+                    <Badge variant="outline">{selectedSnippet.originalText.length}</Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Summary Length:</span>
+                    <Badge variant="outline">{selectedSnippet.summary.length}</Badge>
+                  </div>
+                </div>
+
+                {/* Original Text */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Original Text</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(selectedSnippet.originalText, "original")}
+                    >
+                      {copiedText === "original" ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2 text-green-600" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg border">
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedSnippet.originalText}</p>
+                  </div>
+                </div>
+
+                {/* AI Summary */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">AI Generated Summary</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(selectedSnippet.summary, "summary")}
+                    >
+                      {copiedText === "summary" ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2 text-green-600" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p className="text-blue-800 leading-relaxed">{selectedSnippet.summary}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      copyToClipboard(
+                        `Original: ${selectedSnippet.originalText}\n\nSummary: ${selectedSnippet.summary}`,
+                        "both",
+                      )
+                    }
+                    className="flex-1"
+                  >
+                    {copiedText === "both" ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2 text-green-600" />
+                        Copied Both!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy Both
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1">
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </main>
+    </div>
+  )
+}
