@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge"
 import Header from "@/components/Header"
 import SnippetForm from "@/components/SnippetForm"
+import SnippetCard from "@/components/SnippetCard"
 
 // Mock data for demonstration
 const mockSnippets = Array.from({ length: 25 }, (_, i) => ({
@@ -77,47 +78,15 @@ export default function AISnippetService() {
           window.location.reload()
         }} />
 
-        {/* Snippets List */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Your Snippets</h2>
 
-          {/* Grid Layout - Responsive */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {currentSnippets.map((snippet) => (
-              <Card key={snippet.id} className="h-full flex flex-col hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-gray-600">Snippet #{snippet.id}</CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {snippet.createdAt}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Original Text</h4>
-                    <p className="text-sm text-gray-600 line-clamp-3 bg-gray-50 p-3 rounded-md">
-                      {snippet.originalText}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">AI Summary</h4>
-                    <p className="text-sm text-blue-700 bg-blue-50 p-3 rounded-md line-clamp-2">{snippet.summary}</p>
-                  </div>
-                  <div className="pt-2">
-                    <Button variant="outline" size="sm" onClick={() => openModal(snippet)} className="w-full">
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <SnippetCard key={snippet.id} snippet={snippet} onViewDetails={openModal} />
             ))}
           </div>
 
-          {/* Empty State */}
           {currentSnippets.length === 0 && (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
