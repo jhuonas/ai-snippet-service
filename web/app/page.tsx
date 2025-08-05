@@ -3,14 +3,12 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { FileText, Copy, Check } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
+import { FileText } from "lucide-react"
 import Header from "@/components/Header"
 import SnippetForm from "@/components/SnippetForm"
 import SnippetCard from "@/components/SnippetCard"
 import Pagination from "@/components/Pagination"
+import SnippetDetailsModal from "@/components/SnippetDetailsModal"
 
 // Mock data for demonstration
 const mockSnippets = Array.from({ length: 25 }, (_, i) => ({
@@ -23,42 +21,17 @@ const mockSnippets = Array.from({ length: 25 }, (_, i) => ({
 const ITEMS_PER_PAGE = 6
 
 export default function AISnippetService() {
-  const [inputText, setInputText] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [isGenerating, setIsGenerating] = useState(false)
   const [selectedSnippet, setSelectedSnippet] = useState<(typeof mockSnippets)[0] | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [copiedText, setCopiedText] = useState<string | null>(null)
 
   const totalPages = Math.ceil(mockSnippets.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const currentSnippets = mockSnippets.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inputText.trim()) return
-
-    setIsGenerating(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsGenerating(false)
-    setInputText("")
-    // In real app, this would add the new snippet to the list
-  }
-
   const goToPage = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: "smooth" })
-  }
-
-  const copyToClipboard = async (text: string, type: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(type)
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (err) {
-      console.error("Failed to copy text: ", err)
-    }
   }
 
   const openModal = (snippet: (typeof mockSnippets)[0]) => {
@@ -103,120 +76,11 @@ export default function AISnippetService() {
           />
         )}
 
-        {/* Snippet Details Modal */}
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Snippet #{selectedSnippet?.id} Details
-              </DialogTitle>
-            </DialogHeader>
-
-            {selectedSnippet && (
-              <div className="space-y-6">
-                {/* Metadata */}
-                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Created:</span>
-                    <Badge variant="outline">{selectedSnippet.createdAt}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Characters:</span>
-                    <Badge variant="outline">{selectedSnippet.originalText.length}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Summary Length:</span>
-                    <Badge variant="outline">{selectedSnippet.summary.length}</Badge>
-                  </div>
-                </div>
-
-                {/* Original Text */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Original Text</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(selectedSnippet.originalText, "original")}
-                    >
-                      {copiedText === "original" ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2 text-green-600" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg border">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedSnippet.originalText}</p>
-                  </div>
-                </div>
-
-                {/* AI Summary */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">AI Generated Summary</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(selectedSnippet.summary, "summary")}
-                    >
-                      {copiedText === "summary" ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2 text-green-600" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <p className="text-blue-800 leading-relaxed">{selectedSnippet.summary}</p>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      copyToClipboard(
-                        `Original: ${selectedSnippet.originalText}\n\nSummary: ${selectedSnippet.summary}`,
-                        "both",
-                      )
-                    }
-                    className="flex-1"
-                  >
-                    {copiedText === "both" ? (
-                      <>
-                        <Check className="h-4 w-4 mr-2 text-green-600" />
-                        Copied Both!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Both
-                      </>
-                    )}
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1">
-                    Close
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        <SnippetDetailsModal
+          snippet={selectedSnippet}
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </main>
     </div>
   )
